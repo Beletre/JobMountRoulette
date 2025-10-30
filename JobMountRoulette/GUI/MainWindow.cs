@@ -19,7 +19,8 @@ public class MainWindow : Window
     private readonly MountInventory mMountInventory;
     private readonly MountTable mMountTable;
     private float mWidth;
-    private bool mShowSelectedMountsOnly = false;
+    private bool mShowSelectedOnly = false;
+    private bool mShowMultiseatOnly = false;
     private string mMountSearch = string.Empty;
 
     public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
@@ -77,7 +78,8 @@ public class MainWindow : Window
 
         if (ImGui.CollapsingHeader("Filter"))
         {
-            ImGui.Checkbox("Show only selected mounts", ref mShowSelectedMountsOnly);
+            ImGui.Checkbox("Selected only", ref mShowSelectedOnly);
+            ImGui.Checkbox("Multiseat only", ref mShowMultiseatOnly);
 
             ImGui.InputTextWithHint(string.Empty, "Filter by name", ref mMountSearch, 64);
             if (!string.IsNullOrWhiteSpace(mMountSearch))
@@ -85,8 +87,12 @@ public class MainWindow : Window
                 mounts = mounts.Where(m => m.Name.ToString().IndexOf(mMountSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             }
 
-            mounts = mShowSelectedMountsOnly
+            mounts = mShowSelectedOnly
                 ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
+                : mounts;
+
+            mounts = mShowMultiseatOnly
+                ? mounts.Where(m => m.ExtraSeats > 0).ToList()
                 : mounts;
         }
 

@@ -15,6 +15,7 @@ public sealed class Mount(Lumina.Excel.Sheets.Mount rawMount, ITextureProvider t
     public uint ID { get; init; } = rawMount.RowId;
     public uint IconID { get; init; } = rawMount.Icon;
     public ReadOnlySeString Name { get; } = rawMount.Singular;
+    public byte ExtraSeats { get; } = rawMount.ExtraSeats;
 
     public ImTextureID GetIcon()
     {
