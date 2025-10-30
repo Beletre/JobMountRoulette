@@ -14,4 +14,9 @@ public sealed class CharacterConfiguration
     {
         return JobConfigurations.TryGetValue(identifier, out var config) ? config : JobConfigurations[identifier] = new JobConfiguration();
     }
+
+    public void overrideJob(JobIdentifier identifier, JobConfiguration jobConfiguration)
+    {
+        JobConfigurations[identifier] = jobConfiguration;
+    }
 }

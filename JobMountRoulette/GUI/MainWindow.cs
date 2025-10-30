@@ -3,6 +3,8 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using JobMountRoulette.Configuration;
+using Lumina.Excel;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +24,9 @@ public class MainWindow : Window
     private bool mShowSelectedOnly = false;
     private bool mShowMultiseatOnly = false;
     private string mMountSearch = string.Empty;
+
+    private RowRef<ClassJob>? mJobClipboard;
+    private JobConfiguration? mJobConfigurationClipboard;
 
     public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
@@ -51,11 +56,42 @@ public class MainWindow : Window
 
         var currentJob = player.ClassJob;
         var jobIdentifier = currentJob.Value.RowId;
+        var jobName = currentJob.Value.NameEnglish;
 
         var characterConfiguration = mConfiguration.forCharacter(mClientState.LocalContentId);
         var jobConfiguration = characterConfiguration.forJob(jobIdentifier);
 
-        ImGui.Text($"Current Job: {currentJob.Value.NameEnglish}");
+        ImGui.Text($"Current Job: {jobName}");
+
+        ImGui.SameLine();
+        if (ImGui.Button("Copy"))
+        {
+            mJobClipboard = currentJob;
+
+            JobConfiguration clone = new JobConfiguration
+            {
+                UseCustomRoulette = jobConfiguration.UseCustomRoulette,
+                CustomRouletteMounts = [.. jobConfiguration.CustomRouletteMounts]
+            };
+
+            mJobConfigurationClipboard = clone;
+        }
+
+        if (mJobClipboard.HasValue && mJobConfigurationClipboard != null)
+        {
+            ImGui.SameLine();
+
+            if (ImGui.Button($"Paste from {mJobClipboard?.Value.NameEnglish}"))
+            {
+                JobConfiguration clone = new JobConfiguration
+                {
+                    UseCustomRoulette = mJobConfigurationClipboard.UseCustomRoulette,
+                    CustomRouletteMounts = [.. mJobConfigurationClipboard.CustomRouletteMounts]
+                };
+
+                characterConfiguration.overrideJob(jobIdentifier, clone);
+            }
+        }
 
         var useCustomRoulette = jobConfiguration.UseCustomRoulette;
         _ = ImGui.Checkbox("Enable custom mount roulette for this job"u8, ref useCustomRoulette);
