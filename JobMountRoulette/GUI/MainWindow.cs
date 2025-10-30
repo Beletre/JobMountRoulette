@@ -50,7 +50,7 @@ public class MainWindow : Window
         }
 
         var currentJob = player.ClassJob;
-        var jobIdentifier = currentJob.Value.JobIndex;
+        var jobIdentifier = currentJob.Value.RowId;
 
         var characterConfiguration = mConfiguration.forCharacter(mClientState.LocalContentId);
         var jobConfiguration = characterConfiguration.forJob(jobIdentifier);

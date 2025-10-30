@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace JobMountRoulette.Configuration;
 
-using JobIdentifier = byte;
+using JobIdentifier = uint;
 
 [Serializable]
 public sealed class CharacterConfiguration

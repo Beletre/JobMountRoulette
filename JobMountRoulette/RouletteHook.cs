@@ -41,7 +41,7 @@ internal sealed class RouletteHook : IDisposable
         if (isRouletteActionID)
         {
             var characterConfiguration = mPluginConfiguration.forCharacter(mClientState.LocalContentId);
-            var jobConfiguration = characterConfiguration.forJob(mClientState.LocalPlayer!.ClassJob.Value.JobIndex);
+            var jobConfiguration = characterConfiguration.forJob(mClientState.LocalPlayer!.ClassJob.Value.RowId);
 
             var mountIdentifiers = jobConfiguration.CustomRouletteMounts;
             if (mountIdentifiers.Count > 0)
