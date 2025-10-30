@@ -3,6 +3,8 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using JobMountRoulette.Configuration;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace JobMountRoulette.Windows;
@@ -16,7 +18,7 @@ public class MainWindow : Window
     private readonly MountInventory mMountInventory;
     private readonly MountTable mMountTable;
     private float mWidth;
-
+    private bool mShowSelectedMountsOnly = false;
     public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
@@ -58,10 +60,28 @@ public class MainWindow : Window
         if (useCustomRoulette)
         {
             ImGui.Separator();
-            mMountTable.Render(mMountInventory.GetUnlockedMounts(), jobConfiguration);
+            var mounts = RenderMountFiltering(jobConfiguration);
+            ImGui.Separator();
+            mMountTable.Render(mounts, jobConfiguration);
         }
 
         mWidth = ImGui.GetWindowWidth();
+    }
+
+    private List<Mount> RenderMountFiltering(JobConfiguration jobConfiguration)
+    {
+        var mounts = mMountInventory.GetUnlockedMounts();
+
+        if (ImGui.CollapsingHeader("Filter"))
+        {
+            ImGui.Checkbox("Show only selected mounts", ref mShowSelectedMountsOnly);
+
+            mounts = mShowSelectedMountsOnly
+            ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
+            : mounts;
+        }
+
+        return mounts;
     }
 
     public override void OnClose()
