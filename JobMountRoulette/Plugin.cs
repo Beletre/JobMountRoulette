@@ -39,7 +39,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Use the command /jmr to open the configuration window and personalize your mount selections"
+            HelpMessage = "Open the configuration window and personalize the mount roulette for your current job."
         });
 
         // Tell the UI system that we want our windows to be drawn throught he window system
