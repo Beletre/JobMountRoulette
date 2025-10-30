@@ -3,6 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using JobMountRoulette.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -19,6 +20,8 @@ public class MainWindow : Window
     private readonly MountTable mMountTable;
     private float mWidth;
     private bool mShowSelectedMountsOnly = false;
+    private string mMountSearch = string.Empty;
+
     public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
@@ -76,9 +79,15 @@ public class MainWindow : Window
         {
             ImGui.Checkbox("Show only selected mounts", ref mShowSelectedMountsOnly);
 
+            ImGui.InputTextWithHint(string.Empty, "Filter by name", ref mMountSearch, 64);
+            if (!string.IsNullOrWhiteSpace(mMountSearch))
+            {
+                mounts = mounts.Where(m => m.Name.ToString().IndexOf(mMountSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
+
             mounts = mShowSelectedMountsOnly
-            ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
-            : mounts;
+                ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
+                : mounts;
         }
 
         return mounts;

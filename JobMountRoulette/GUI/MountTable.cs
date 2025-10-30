@@ -23,6 +23,9 @@ internal sealed class MountTable(ITextureProvider textureProvider)
     {
         var pageCount = GetPageCount(mounts.Count);
 
+        if (mMountPage > pageCount)
+            mMountPage = 1;
+
         ImGui.Text($"Pages: ");
 
         // Render page number buttons
@@ -41,7 +44,6 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 mMountPage = page;
             }
         }
-
     }
 
     private void RenderCurrentPage(List<Mount> mounts, JobConfiguration jobConfiguration)
