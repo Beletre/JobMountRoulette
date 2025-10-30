@@ -57,6 +57,7 @@ public class MainWindow : Window
 
         if (useCustomRoulette)
         {
+            ImGui.Separator();
             mMountTable.Render(mMountInventory.GetUnlockedMounts(), jobConfiguration);
         }
 

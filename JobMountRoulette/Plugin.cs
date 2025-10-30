@@ -17,7 +17,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IGameInteropProvider GameInteropProvider { get; private set; } = null!;
 
-    private const string CommandName = "/pjmr";
+    private const string CommandName = "/jmr";
 
     public PluginConfiguration PluginConfiguration { get; init; }
 
