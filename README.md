@@ -1,14 +1,11 @@
-# JobMountRoulette
+# Job Mount Roulette
 
-JobMountRoulette is a plugin for Dalamud (FFXIV) that allows players to summon mounts based on their current job, with customizable preferences and advanced configuration options.
-
-## Features
-- **Job-based mount roulette:** Automatically selects a mount based on your current job/class.
-- **Customizable preferences:** Configure preferred mounts for each job.
-- **Character-specific settings:** Save different configurations per character.
-- **User-friendly UI:** Easily manage your mount lists and settings.
+This plugin for Dalamud (FFXIV) allows players to configure a customized mount roulette based on their current job. When activated, it will randomly select and summon a mount from a predefined list specific to the player's current job.
 
 ## Usage
 - Use `/jmr` in chat to open the plugin UI.
-- Configure your preferred mounts per job in the settings window.
-- Summon a random mount for your current job using the ingame mount roulette action.
+- The UI always shows the settings for your current job.
+- You can enable or disable the custom mount roulette for each job individually.
+- Add or remove mounts from the list of unlocked mounts for each job as desired.
+- Quickly copy and paste settings from one job to another.
+- Filter mounts based on their name, enabled status, or multiseat capability.
