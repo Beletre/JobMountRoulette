@@ -16,6 +16,21 @@ public sealed class JobConfiguration
         return CustomRouletteMounts.Contains(mountId);
     }
 
+    public void SetMountEnabled(MountIdentifier mountId, bool enabled)
+    {
+        if (enabled)
+        {
+            if (!CustomRouletteMounts.Contains(mountId))
+            {
+                CustomRouletteMounts.Add(mountId);
+            }
+        }
+        else
+        {
+            CustomRouletteMounts.Remove(mountId);
+        }
+    }
+
     public void ToggleMount(MountIdentifier mountId)
     {
         if (CustomRouletteMounts.Contains(mountId))

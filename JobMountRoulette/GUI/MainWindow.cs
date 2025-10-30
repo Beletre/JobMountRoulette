@@ -65,11 +65,36 @@ public class MainWindow : Window
         {
             ImGui.Separator();
             var mounts = RenderMountFiltering(jobConfiguration);
+            RenderBatchOperations(mounts, characterConfiguration, jobConfiguration);
             ImGui.Separator();
             mMountTable.Render(mounts, jobConfiguration);
         }
 
         mWidth = ImGui.GetWindowWidth();
+    }
+
+    private void RenderBatchOperations(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    {
+        if (ImGui.CollapsingHeader("Batch"))
+        {
+            if (ImGui.Button("Select all"))
+            {
+                foreach (var mount in mounts)
+                {
+                    jobConfiguration.SetMountEnabled(mount.ID, true);
+                }
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Deselect all"))
+            {
+                foreach (var mount in mounts)
+                {
+                    jobConfiguration.SetMountEnabled(mount.ID, false);
+                }
+            }
+        }
     }
 
     private List<Mount> RenderMountFiltering(JobConfiguration jobConfiguration)
