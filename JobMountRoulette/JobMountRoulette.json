@@ -2,7 +2,7 @@
     "Author": "Beletre",
     "Name": "Job Mount Roulette",
     "Punchline": "Customized mount roulette per job.",
-    "Description": "Enhance your mount roulette experience by customizing which mounts appear for each job individually. Unlike the default in-game roulette, this plugin lets you set unique mount lists for every job, giving you full control over your rides. Use the command /pjmr to open the configuration window and personalize your mount selections.",
+    "Description": "Enhance your mount roulette experience by customizing which mounts appear for each job individually. Unlike the default in-game roulette, this plugin lets you set unique mount lists for every job, giving you full control over your rides. Use the command /jmr to open the configuration window and personalize your mount selections.",
     "ApplicableVersion": "any",
     "Tags": [
         "mount",
