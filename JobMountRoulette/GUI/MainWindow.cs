@@ -15,22 +15,23 @@ public class MainWindow : Window
     private readonly ITextureProvider mTextureProvider;
     private readonly MountInventory mMountInventory;
     private readonly MountTable mMountTable;
+    private float mWidth;
 
     public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
-        : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+        : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
-        SizeConstraints = new WindowSizeConstraints
-        {
-            MinimumSize = new Vector2(375, 330),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
-        };
-
         mConfiguration = configuration;
         mPluginInterface = pluginInterface;
         mClientState = clientState;
         mTextureProvider = textureProvider;
         mMountInventory = mountInventory;
         mMountTable = new MountTable(mTextureProvider);
+    }
+
+    public override void PreDraw()
+    {
+        base.PreDraw();
+        ImGui.SetNextWindowSizeConstraints(new Vector2(mWidth, 0), new Vector2(float.MaxValue, float.MaxValue));
     }
 
     public override void Draw()
@@ -58,6 +59,8 @@ public class MainWindow : Window
         {
             mMountTable.Render(mMountInventory.GetUnlockedMounts(), jobConfiguration);
         }
+
+        mWidth = ImGui.GetWindowWidth();
     }
 
     public override void OnClose()
