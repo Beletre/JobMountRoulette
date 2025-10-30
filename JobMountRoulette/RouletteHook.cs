@@ -1,18 +1,18 @@
-namespace JobMountRoulette;
-
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
-using SamplePlugin.Configuration;
+using JobMountRoulette.Configuration;
 using System;
+
+namespace JobMountRoulette;
 
 internal sealed class RouletteHook : IDisposable
 {
     private const uint ROULETTE_ACTION_ID = 9;
 
-    private readonly Configuration mConfiguration;
+    private readonly PluginConfiguration mPluginConfiguration;
     private readonly IClientState mClientState;
 
     private readonly Hook<UseAction>? mUseActionHook;
@@ -21,11 +21,11 @@ internal sealed class RouletteHook : IDisposable
     private readonly Hook<InitializeCastBar>? mInitializeCastbarHook;
     private unsafe delegate void InitializeCastBar(ActionManager* actionManager, BattleChara* chara, ActionType actionType, uint actionId, uint spellId, int mountRouletteIndex);
 
-    private bool overrideIcon = false;
+    private bool mOverrideIcon = false;
 
-    public unsafe RouletteHook(Configuration configuration, IClientState clientState, IGameInteropProvider gameInteropProvider)
+    public unsafe RouletteHook(PluginConfiguration pluginConfiguration, IClientState clientState, IGameInteropProvider gameInteropProvider)
     {
-        mConfiguration = configuration;
+        mPluginConfiguration = pluginConfiguration;
         mClientState = clientState;
 
         mUseActionHook = gameInteropProvider.HookFromAddress<UseAction>(ActionManager.MemberFunctionPointers.UseAction, OnUseAction);
@@ -40,7 +40,7 @@ internal sealed class RouletteHook : IDisposable
         var isRouletteActionID = actionID == ROULETTE_ACTION_ID && actionType == ActionType.GeneralAction;
         if (isRouletteActionID)
         {
-            var characterConfiguration = mConfiguration.forCharacter(mClientState.LocalContentId);
+            var characterConfiguration = mPluginConfiguration.forCharacter(mClientState.LocalContentId);
             var jobConfiguration = characterConfiguration.forJob(mClientState.LocalPlayer!.ClassJob.Value.JobIndex);
 
             var mountIdentifiers = jobConfiguration.CustomRouletteMounts;
@@ -49,9 +49,9 @@ internal sealed class RouletteHook : IDisposable
                 var random = new Random();
                 var randomMountIdentifier = mountIdentifiers[random.Next(mountIdentifiers.Count)];
 
-                overrideIcon = true;
+                mOverrideIcon = true;
                 var result = mUseActionHook!.Original(actionManager, ActionType.Mount, randomMountIdentifier, targetID, a4, a5, a6, a7);
-                overrideIcon = false;
+                mOverrideIcon = false;
 
                 return result;
             }
@@ -62,7 +62,7 @@ internal sealed class RouletteHook : IDisposable
 
     private unsafe void OnInitializeCastBar(ActionManager* actionManager, BattleChara* chara, ActionType actionType, uint actionId, uint spellId, int mountRouletteIndex)
     {
-        if (chara == Control.GetLocalPlayer() && overrideIcon && actionType == ActionType.Mount)
+        if (chara == Control.GetLocalPlayer() && mOverrideIcon && actionType == ActionType.Mount)
         {
             mInitializeCastbarHook!.Original(actionManager, chara, actionType, actionId, spellId, 1);
         }

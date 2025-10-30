@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SamplePlugin.Configuration;
+namespace JobMountRoulette.Configuration;
 
 using MountIdentifier = uint;
 

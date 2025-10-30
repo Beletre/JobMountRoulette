@@ -1,5 +1,3 @@
-namespace JobMountRoulette;
-
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using Dalamud.Plugin.Services;
@@ -7,6 +5,8 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.Interop;
 using Lumina.Text.ReadOnly;
+
+namespace JobMountRoulette;
 
 public sealed class Mount(Lumina.Excel.Sheets.Mount rawMount, ITextureProvider textureProvider)
 {

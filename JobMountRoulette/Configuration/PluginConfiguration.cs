@@ -2,12 +2,12 @@ using Dalamud.Configuration;
 using System;
 using System.Collections.Generic;
 
-namespace SamplePlugin.Configuration;
+namespace JobMountRoulette.Configuration;
 
 using CharacterIdentifier = ulong;
 
 [Serializable]
-public sealed class Configuration : IPluginConfiguration
+public sealed class PluginConfiguration : IPluginConfiguration
 {
     public int Version { get; set; } = 0;
     public Dictionary<CharacterIdentifier, CharacterConfiguration> CharacterConfigurations { get; set; } = [];

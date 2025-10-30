@@ -1,10 +1,8 @@
-namespace JobMountRoulette;
-
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.Interop;
 using System.Collections.Generic;
 using System.Linq;
+
+namespace JobMountRoulette;
 
 public sealed class MountInventory
 {

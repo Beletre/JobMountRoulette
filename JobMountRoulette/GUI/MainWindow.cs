@@ -2,22 +2,21 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using SamplePlugin.Configuration;
-using System;
+using JobMountRoulette.Configuration;
 using System.Numerics;
 
 namespace JobMountRoulette.Windows;
 
 public class MainWindow : Window
 {
-    private readonly Configuration mConfiguration;
+    private readonly PluginConfiguration mConfiguration;
     private readonly IDalamudPluginInterface mPluginInterface;
     private readonly IClientState mClientState;
     private readonly ITextureProvider mTextureProvider;
     private readonly MountInventory mMountInventory;
     private readonly MountTable mMountTable;
 
-    public MainWindow(Configuration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
+    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints

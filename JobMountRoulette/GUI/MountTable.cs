@@ -1,11 +1,11 @@
-namespace JobMountRoulette;
-
 using Dalamud.Bindings.ImGui;
 using Dalamud.Plugin.Services;
-using SamplePlugin.Configuration;
+using JobMountRoulette.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+
+namespace JobMountRoulette.Windows;
 
 internal sealed class MountTable(ITextureProvider textureProvider)
 {
