@@ -3,7 +3,6 @@
     "Name": "Job Mount Roulette",
     "Punchline": "Customized mount roulette per job.",
     "Description": "Enhance your mount roulette experience by customizing which mounts may appear for each job individually.",
-	"IconUrl": "https://github.com/Beletre/JobMountRoulette/images/icon.png",
     "InternalName": "JobMountRoulette",
     "ApplicableVersion": "any",
     "Tags": [
@@ -12,5 +11,6 @@
         "roulette",
         "job"
     ],
-    "RepoUrl": "https://github.com/Beletre/JobMountRoulette"
+    "RepoUrl": "https://github.com/Beletre/JobMountRoulette",
+    "IconUrl": "https://raw.githubusercontent.com/Beletre/JobMountRoulette/main/images/icon.png"
 }
