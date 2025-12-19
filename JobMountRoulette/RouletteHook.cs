@@ -13,7 +13,8 @@ internal sealed class RouletteHook : IDisposable
     private const uint ROULETTE_ACTION_ID = 9;
 
     private readonly PluginConfiguration mPluginConfiguration;
-    private readonly IClientState mClientState;
+    private readonly IPlayerState mPlayerState;
+    private readonly IObjectTable mObjectTable;
 
     private readonly Hook<UseAction>? mUseActionHook;
     public unsafe delegate byte UseAction(ActionManager* actionManager, ActionType actionType, uint actionID, long targetID = 3758096384U, uint a4 = 0U, uint a5 = 0U, uint a6 = 0U, void* a7 = default);
@@ -23,10 +24,11 @@ internal sealed class RouletteHook : IDisposable
 
     private bool mOverrideIcon = false;
 
-    public unsafe RouletteHook(PluginConfiguration pluginConfiguration, IClientState clientState, IGameInteropProvider gameInteropProvider)
+    public unsafe RouletteHook(PluginConfiguration pluginConfiguration, IPlayerState playerState, IObjectTable objectTable, IGameInteropProvider gameInteropProvider)
     {
         mPluginConfiguration = pluginConfiguration;
-        mClientState = clientState;
+        mPlayerState = playerState;
+        mObjectTable = objectTable;
 
         mUseActionHook = gameInteropProvider.HookFromAddress<UseAction>(ActionManager.MemberFunctionPointers.UseAction, OnUseAction);
         mUseActionHook.Enable();
@@ -40,8 +42,8 @@ internal sealed class RouletteHook : IDisposable
         var isRouletteActionID = actionID == ROULETTE_ACTION_ID && actionType == ActionType.GeneralAction;
         if (isRouletteActionID)
         {
-            var characterConfiguration = mPluginConfiguration.forCharacter(mClientState.LocalContentId);
-            var jobConfiguration = characterConfiguration.forJob(mClientState.LocalPlayer!.ClassJob.Value.RowId);
+            var characterConfiguration = mPluginConfiguration.forCharacter(mPlayerState.ContentId);
+            var jobConfiguration = characterConfiguration.forJob(mObjectTable.LocalPlayer!.ClassJob.Value.RowId);
 
             var mountIdentifiers = jobConfiguration.CustomRouletteMounts;
             if (mountIdentifiers.Count > 0)

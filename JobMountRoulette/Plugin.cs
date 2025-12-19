@@ -13,9 +13,10 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
-    [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IGameInteropProvider GameInteropProvider { get; private set; } = null!;
+    [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
+    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     private const string CommandName = "/jmr";
 
@@ -32,8 +33,8 @@ public sealed class Plugin : IDalamudPlugin
 
         PluginConfiguration = PluginInterface.GetPluginConfig() as PluginConfiguration ?? new PluginConfiguration();
 
-        RouletteHook = new RouletteHook(PluginConfiguration, ClientState, GameInteropProvider);
-        MainWindow = new MainWindow(PluginConfiguration, PluginInterface, ClientState, TextureProvider, MountInventory);
+        RouletteHook = new RouletteHook(PluginConfiguration, PlayerState, ObjectTable, GameInteropProvider);
+        MainWindow = new MainWindow(PluginConfiguration, PluginInterface, PlayerState, ObjectTable, TextureProvider, MountInventory);
 
         WindowSystem.AddWindow(MainWindow);
 

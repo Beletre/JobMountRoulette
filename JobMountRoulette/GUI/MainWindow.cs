@@ -16,7 +16,8 @@ public class MainWindow : Window
 {
     private readonly PluginConfiguration mConfiguration;
     private readonly IDalamudPluginInterface mPluginInterface;
-    private readonly IClientState mClientState;
+    private readonly IObjectTable mObjectTable;
+    private readonly IPlayerState mPlayerState;
     private readonly ITextureProvider mTextureProvider;
     private readonly MountInventory mMountInventory;
     private readonly MountTable mMountTable;
@@ -28,12 +29,13 @@ public class MainWindow : Window
     private RowRef<ClassJob>? mJobClipboard;
     private JobConfiguration? mJobConfigurationClipboard;
 
-    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IClientState clientState, ITextureProvider textureProvider, MountInventory mountInventory)
+    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IPlayerState playerState, IObjectTable objectTable, ITextureProvider textureProvider, MountInventory mountInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         mConfiguration = configuration;
         mPluginInterface = pluginInterface;
-        mClientState = clientState;
+        mPlayerState = playerState;
+        mObjectTable = objectTable;
         mTextureProvider = textureProvider;
         mMountInventory = mountInventory;
         mMountTable = new MountTable(mTextureProvider);
@@ -47,7 +49,7 @@ public class MainWindow : Window
 
     public override void Draw()
     {
-        var player = mClientState.LocalPlayer;
+        var player = mObjectTable.LocalPlayer;
         if (player == null)
         {
             ImGui.Text("You ain't got no job... :,(");
@@ -58,7 +60,7 @@ public class MainWindow : Window
         var jobIdentifier = currentJob.Value.RowId;
         var jobName = currentJob.Value.NameEnglish;
 
-        var characterConfiguration = mConfiguration.forCharacter(mClientState.LocalContentId);
+        var characterConfiguration = mConfiguration.forCharacter(mPlayerState.ContentId);
         var jobConfiguration = characterConfiguration.forJob(jobIdentifier);
 
         ImGui.Text($"Current Job: {jobName}");
