@@ -105,7 +105,7 @@ public class MainWindow : Window
             var mounts = RenderMountFiltering(jobConfiguration);
             RenderBatchOperations(mounts, characterConfiguration, jobConfiguration);
             ImGui.Separator();
-            mMountTable.Render(mounts, jobConfiguration);
+            mMountTable.Render(mounts, characterConfiguration, jobConfiguration);
         }
 
         mWidth = ImGui.GetWindowWidth();
