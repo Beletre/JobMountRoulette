@@ -20,6 +20,7 @@ public class MainWindow : Window
     private readonly IPlayerState mPlayerState;
     private readonly ITextureProvider mTextureProvider;
     private readonly MountInventory mMountInventory;
+    private readonly JobInventory mJobInventory;
     private readonly MountTable mMountTable;
     private float mWidth;
     private bool mShowSelectedOnly = false;
@@ -29,7 +30,7 @@ public class MainWindow : Window
     private RowRef<ClassJob>? mJobClipboard;
     private JobConfiguration? mJobConfigurationClipboard;
 
-    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IPlayerState playerState, IObjectTable objectTable, ITextureProvider textureProvider, MountInventory mountInventory)
+    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IPlayerState playerState, IObjectTable objectTable, ITextureProvider textureProvider, MountInventory mountInventory, JobInventory jobInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         mConfiguration = configuration;
@@ -38,6 +39,7 @@ public class MainWindow : Window
         mObjectTable = objectTable;
         mTextureProvider = textureProvider;
         mMountInventory = mountInventory;
+        mJobInventory = jobInventory;
         mMountTable = new MountTable(mTextureProvider);
     }
 
@@ -57,13 +59,12 @@ public class MainWindow : Window
         }
 
         var currentJob = player.ClassJob;
-        var jobIdentifier = currentJob.Value.RowId;
-        var jobName = currentJob.Value.NameEnglish;
+        var job = mJobInventory.GetJob(currentJob.Value.RowId);
 
         var characterConfiguration = mConfiguration.forCharacter(mPlayerState.ContentId);
-        var jobConfiguration = characterConfiguration.forJob(jobIdentifier);
+        var jobConfiguration = characterConfiguration.forJob(job.ID);
 
-        ImGui.Text($"Current Job: {jobName}");
+        ImGui.Text($"Current Job: {job.Name}");
 
         ImGui.SameLine();
         if (ImGui.Button("Copy"))
@@ -91,7 +92,7 @@ public class MainWindow : Window
                     CustomRouletteMounts = [.. mJobConfigurationClipboard.CustomRouletteMounts]
                 };
 
-                characterConfiguration.overrideJob(jobIdentifier, clone);
+                characterConfiguration.overrideJob(job.ID, clone);
             }
         }
 
@@ -105,7 +106,7 @@ public class MainWindow : Window
             var mounts = RenderMountFiltering(jobConfiguration);
             RenderBatchOperations(mounts, characterConfiguration, jobConfiguration);
             ImGui.Separator();
-            mMountTable.Render(mounts, characterConfiguration, jobConfiguration);
+            mMountTable.Render(mounts, characterConfiguration, jobConfiguration, mJobInventory);
         }
 
         mWidth = ImGui.GetWindowWidth();

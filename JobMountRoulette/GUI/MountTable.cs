@@ -1,4 +1,6 @@
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.FontIdentifier;
+using Dalamud.Interface.Textures;
 using Dalamud.Plugin.Services;
 using JobMountRoulette.Configuration;
 using System.Collections.Generic;
@@ -25,29 +27,6 @@ internal sealed class MountTable(ITextureProvider textureProvider)
     private int mMountPage = 1;
 
     private readonly ITextureProvider mTextureProvider = textureProvider;
-
-    // Static job list for demonstration (add more jobs as needed)
-    private static readonly List<JobInfo> JobList = new()
-    {
-        new JobInfo { Id = 19, Name = "PLD" },
-        new JobInfo { Id = 21, Name = "WAR" },
-        new JobInfo { Id = 24, Name = "WHM" },
-        new JobInfo { Id = 25, Name = "SCH" },
-        new JobInfo { Id = 27, Name = "DRG" },
-        new JobInfo { Id = 30, Name = "BRD" },
-        new JobInfo { Id = 31, Name = "MNK" },
-        new JobInfo { Id = 32, Name = "SMN" },
-        new JobInfo { Id = 34, Name = "BLM" },
-        new JobInfo { Id = 35, Name = "ACN" },
-        new JobInfo { Id = 37, Name = "NIN" },
-        new JobInfo { Id = 38, Name = "MCH" },
-        new JobInfo { Id = 39, Name = "DRK" },
-        new JobInfo { Id = 40, Name = "AST" },
-        new JobInfo { Id = 41, Name = "SAM" },
-        new JobInfo { Id = 43, Name = "RDM" },
-        new JobInfo { Id = 44, Name = "BLU" },
-        // ... add more jobs as needed
-    };
 
     private void RenderNavigationBar(List<Mount> mounts)
     {
@@ -76,7 +55,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         }
     }
 
-    private void RenderCurrentPage(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    private void RenderCurrentPage(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
     {
         if (!ImGui.BeginTable("MountTable", 5))
             return;
@@ -94,16 +73,16 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 i = 0;
             }
 
-            RenderMount(mount, characterConfiguration, jobConfiguration);
+            RenderMount(mount, characterConfiguration, jobConfiguration, jobInventory);
         }
 
         ImGui.EndTable();
     }
 
-    public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
     {
         RenderNavigationBar(mounts);
-        RenderCurrentPage(mounts, characterConfiguration, jobConfiguration);
+        RenderCurrentPage(mounts, characterConfiguration, jobConfiguration, jobInventory);
     }
 
     private static int GetPageCount(int mountCount)
@@ -111,7 +90,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         return (mountCount / PAGE_SIZE) + (mountCount % PAGE_SIZE == 0 ? 0 : 1);
     }
 
-    private void RenderMount(Mount mount, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    private void RenderMount(Mount mount, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
     {
         var selectedUnselectedIcon = mTextureProvider.GetFromGame($"ui/uld/readycheck_hr1.tex").GetWrapOrEmpty().Handle;
 
@@ -169,11 +148,12 @@ internal sealed class MountTable(ITextureProvider textureProvider)
             int columns = 8;
             int i = 0;
             ImGui.BeginTable($"##jobtable_{mount.ID}", columns, ImGuiTableFlags.None);
-            foreach (var job in JobList)
+
+            foreach (var job in jobInventory.GetJobs())
             {
                 ImGui.TableNextColumn();
 
-                var perJobConfig = characterConfiguration.forJob(job.Id);
+                var perJobConfig = characterConfiguration.forJob(job.ID);
                 bool enabled = perJobConfig.IsMountEnabled(mount.ID);
                 // Placeholder: colored square for enabled, grey for disabled
                 var color = enabled ? new Vector4(0.2f, 0.8f, 0.2f, 1f) : new Vector4(0.5f, 0.5f, 0.5f, 1f);
@@ -181,8 +161,8 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color * new Vector4(1.1f, 1.1f, 1.1f, 1f));
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, color);
                 var btnSize = new Vector2(32, 32);
-                string btnId = $"##jobbtn_{mount.ID}_{job.Id}";
-                if (ImGui.Button(btnId, btnSize))
+
+                if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0))
                 {
                     perJobConfig.ToggleMount(mount.ID);
                 }
@@ -196,5 +176,61 @@ internal sealed class MountTable(ITextureProvider textureProvider)
             ImGui.EndTable();
             ImGui.EndPopup();
         }
+    }
+}
+
+internal static class JobDataProvider
+{
+    private static readonly Dictionary<uint, (string Name, string Abbreviation, uint IconId)> s_jobData = new()
+    {
+        { 1, ("Gladiator", "GLA", 62101) },
+        { 2, ("Pugilist", "PGL", 62102) },
+        { 3, ("Marauder", "MRD", 62103) },
+        { 4, ("Lancer", "LNC", 62104) },
+        { 5, ("Archer", "ARC", 62105) },
+        { 6, ("Conjurer", "CNJ", 62106) },
+        { 7, ("Thaumaturge", "THM", 62107) },
+        { 8, ("Carpenter", "CRP", 62108) },
+        { 9, ("Blacksmith", "BSM", 62109) },
+        { 10, ("Armorer", "ARM", 62110) },
+        { 11, ("Goldsmith", "GSM", 62111) },
+        { 12, ("Leatherworker", "LTW", 62112) },
+        { 13, ("Weaver", "WVR", 62113) },
+        { 14, ("Alchemist", "ALC", 62114) },
+        { 15, ("Culinarian", "CUL", 62115) },
+        { 16, ("Miner", "MIN", 62116) },
+        { 17, ("Botanist", "BTN", 62117) },
+        { 18, ("Fisher", "FSH", 62118) },
+        { 19, ("Paladin", "PLD", 62119) },
+        { 20, ("Monk", "MNK", 62120) },
+        { 21, ("Warrior", "WAR", 62121) },
+        { 22, ("Dragoon", "DRG", 62122) },
+        { 23, ("Bard", "BRD", 62123) },
+        { 24, ("White Mage", "WHM", 62124) },
+        { 25, ("Black Mage", "BLM", 62125) },
+        { 26, ("Arcanist", "ACN", 62126) },
+        { 27, ("Summoner", "SMN", 62127) },
+        { 28, ("Scholar", "SCH", 62128) },
+        { 29, ("Rogue", "ROG", 62129) },
+        { 30, ("Ninja", "NIN", 62130) },
+        { 31, ("Machinist", "MCH", 62131) },
+        { 32, ("Dark Knight", "DRK", 62132) },
+        { 33, ("Astrologian", "AST", 62133) },
+        { 34, ("Samurai", "SAM", 62134) },
+        { 35, ("Red Mage", "RDM", 62135) },
+        { 36, ("Blue Mage", "BLU", 62136) },
+        { 37, ("Gunbreaker", "GNB", 62137) },
+        { 38, ("Dancer", "DNC", 62138) },
+        { 39, ("Reaper", "RPR", 62139) },
+        { 40, ("Sage", "SGE", 62140) },
+        { 41, ("Viper", "VIP", 62141) },
+        { 42, ("Pictomancer", "PIC", 62142) }
+    };
+
+    public static (string Name, string Abbreviation, uint IconId)? GetJobInfo(uint jobId)
+    {
+        if (s_jobData.TryGetValue(jobId, out var data))
+            return data;
+        return null;
     }
 }

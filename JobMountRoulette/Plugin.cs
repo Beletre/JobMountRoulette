@@ -25,16 +25,18 @@ public sealed class Plugin : IDalamudPlugin
     public readonly WindowSystem WindowSystem = new("JobMountRoulette");
     private MainWindow MainWindow { get; init; }
     private MountInventory MountInventory { get; init; }
+    private JobInventory JobInventory { get; init; }
     private RouletteHook RouletteHook{ get; init; }
 
     public Plugin()
     {
         MountInventory = new MountInventory(DataManager, TextureProvider);
+        JobInventory = new JobInventory(DataManager, TextureProvider);
 
         PluginConfiguration = PluginInterface.GetPluginConfig() as PluginConfiguration ?? new PluginConfiguration();
 
         RouletteHook = new RouletteHook(PluginConfiguration, PlayerState, ObjectTable, GameInteropProvider);
-        MainWindow = new MainWindow(PluginConfiguration, PluginInterface, PlayerState, ObjectTable, TextureProvider, MountInventory);
+        MainWindow = new MainWindow(PluginConfiguration, PluginInterface, PlayerState, ObjectTable, TextureProvider, MountInventory, JobInventory);
 
         WindowSystem.AddWindow(MainWindow);
 
