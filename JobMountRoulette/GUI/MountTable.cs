@@ -77,6 +77,13 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         }
 
         ImGui.EndTable();
+
+        // Help text below the table explaining click behavior (dimmed)
+        ImGui.Separator();
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1f));
+        ImGui.TextWrapped("Left-click: toggle mount for the current job."); 
+        ImGui.TextWrapped("Right-click: open popup to view/change which jobs have this mount enabled.");
+        ImGui.PopStyleColor();
     }
 
     public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
@@ -133,7 +140,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
 
         ImGui.SetCursorPos(finalPos);
 
-        // --- Job Enable/Disable Popup ---
+        // --- Job assignment Popup ---
         string popupId = $"##jobpopup_{mount.ID}";
         if (mountRightClicked)
         {
