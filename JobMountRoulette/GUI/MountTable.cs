@@ -1,6 +1,4 @@
 using Dalamud.Bindings.ImGui;
-using Dalamud.Interface.FontIdentifier;
-using Dalamud.Interface.Textures;
 using Dalamud.Plugin.Services;
 using JobMountRoulette.Configuration;
 using System.Collections.Generic;
