@@ -149,7 +149,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
             int i = 0;
             ImGui.BeginTable($"##jobtable_{mount.ID}", columns, ImGuiTableFlags.None);
 
-            foreach (var job in jobInventory.GetJobs())
+            foreach (var job in jobInventory.GetJobsSortedByType())
             {
                 ImGui.TableNextColumn();
 
