@@ -145,35 +145,39 @@ internal sealed class MountTable(ITextureProvider textureProvider)
             ImGui.Text($"Jobs for: {mount.Name}");
             ImGui.Separator();
 
-            int columns = 8;
-            int i = 0;
-            ImGui.BeginTable($"##jobtable_{mount.ID}", columns, ImGuiTableFlags.None);
-
-            foreach (var job in jobInventory.GetJobsSortedByType())
+            foreach (JobInventory.JobType jobType in System.Enum.GetValues(typeof(JobInventory.JobType)))
             {
-                ImGui.TableNextColumn();
+                var jobs = jobInventory.GetJobsByType(jobType);
+                if (jobs.Count == 0)
+                    continue;
 
-                var perJobConfig = characterConfiguration.forJob(job.ID);
-                bool enabled = perJobConfig.IsMountEnabled(mount.ID);
-                // Placeholder: colored square for enabled, grey for disabled
-                var color = enabled ? new Vector4(0.2f, 0.8f, 0.2f, 1f) : new Vector4(0.5f, 0.5f, 0.5f, 1f);
-                ImGui.PushStyleColor(ImGuiCol.Button, color);
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color * new Vector4(1.1f, 1.1f, 1.1f, 1f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonActive, color);
-                var btnSize = new Vector2(32, 32);
-
-                if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0))
+                ImGui.BeginGroup();
+                bool first = true;
+                foreach (var job in jobs)
                 {
-                    perJobConfig.ToggleMount(mount.ID);
+                    if (!first)
+                        ImGui.SameLine();
+                    first = false;
+                    var perJobConfig = characterConfiguration.forJob(job.ID);
+                    bool enabled = perJobConfig.IsMountEnabled(mount.ID);
+                    var color = enabled ? new Vector4(0.2f, 0.8f, 0.2f, 1f) : new Vector4(0.5f, 0.5f, 0.5f, 1f);
+                    ImGui.PushStyleColor(ImGuiCol.Button, color);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color * new Vector4(1.1f, 1.1f, 1.1f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.ButtonActive, color);
+                    var btnSize = new Vector2(32, 32);
+                    if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0))
+                    {
+                        perJobConfig.ToggleMount(mount.ID);
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip(job.Name);
+                    }
+                    ImGui.PopStyleColor(3);
                 }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.SetTooltip(job.Name);
-                }
-                ImGui.PopStyleColor(3);
-                i++;
+                ImGui.EndGroup();
+                ImGui.Spacing();
             }
-            ImGui.EndTable();
             ImGui.EndPopup();
         }
     }
