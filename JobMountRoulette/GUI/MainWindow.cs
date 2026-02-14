@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace JobMountRoulette.Windows;
+namespace JobMountRoulette.GUI;
 
 public class MainWindow : Window
 {
@@ -76,7 +76,7 @@ public class MainWindow : Window
         {
             mJobClipboard = currentJob;
 
-            JobConfiguration clone = new JobConfiguration
+            var clone = new JobConfiguration
             {
                 UseCustomRoulette = jobConfiguration.UseCustomRoulette,
                 CustomRouletteMounts = [.. jobConfiguration.CustomRouletteMounts]
@@ -91,7 +91,7 @@ public class MainWindow : Window
 
             if (ImGui.Button($"Paste from {mJobClipboard?.Value.NameEnglish}"))
             {
-                JobConfiguration clone = new JobConfiguration
+                var clone = new JobConfiguration
                 {
                     UseCustomRoulette = mJobConfigurationClipboard.UseCustomRoulette,
                     CustomRouletteMounts = [.. mJobConfigurationClipboard.CustomRouletteMounts]
@@ -109,7 +109,7 @@ public class MainWindow : Window
         {
             ImGui.Separator();
             var mounts = RenderMountFiltering(jobConfiguration);
-            RenderBatchOperations(mounts, characterConfiguration, jobConfiguration);
+            RenderBatchOperations(mounts, jobConfiguration);
             ImGui.Separator();
             mMountTable.Render(mounts, characterConfiguration, jobConfiguration);
         }
@@ -117,7 +117,7 @@ public class MainWindow : Window
         mWidth = ImGui.GetWindowWidth();
     }
 
-    private void RenderBatchOperations(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    private static void RenderBatchOperations(List<Mount> mounts, JobConfiguration jobConfiguration)
     {
         if (ImGui.CollapsingHeader("Batch"))
         {
@@ -153,15 +153,15 @@ public class MainWindow : Window
             ImGui.InputTextWithHint(string.Empty, "Filter by name", ref mMountSearch, 64);
             if (!string.IsNullOrWhiteSpace(mMountSearch))
             {
-                mounts = mounts.Where(m => m.Name.ToString().IndexOf(mMountSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                mounts = [.. mounts.Where(m => m.Name.ToString().Contains(mMountSearch, StringComparison.OrdinalIgnoreCase))];
             }
 
             mounts = mShowSelectedOnly
-                ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
+                ? [.. mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID))]
                 : mounts;
 
             mounts = mShowMultiseatOnly
-                ? mounts.Where(m => m.ExtraSeats > 0).ToList()
+                ? [.. mounts.Where(m => m.ExtraSeats > 0)]
                 : mounts;
         }
 

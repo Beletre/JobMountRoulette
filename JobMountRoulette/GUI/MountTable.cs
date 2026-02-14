@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace JobMountRoulette.Windows;
+namespace JobMountRoulette.GUI;
 
 internal sealed class MountTable(ITextureProvider textureProvider, JobInventory jobInventory)
 {
@@ -151,9 +151,9 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
         ImGui.Text($"Jobs for: {mount.Name}");
         ImGui.Separator();
 
-        foreach (JobInventory.JobType jobType in System.Enum.GetValues(typeof(JobInventory.JobType)))
+        foreach (var jobType in System.Enum.GetValues<JobInventory.Role>())
         {
-            var jobs = mJobInventory.GetJobsByType(jobType);
+            var jobs = mJobInventory.FindByRole(jobType);
             if (jobs.Count == 0)
                 continue;
 

@@ -3,8 +3,8 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using JobMountRoulette.Windows;
 using JobMountRoulette.Configuration;
+using JobMountRoulette.GUI;
 
 namespace JobMountRoulette;
 
