@@ -16,7 +16,7 @@ internal sealed class JobInfo
     // Placeholder for icon, in real use would be ImTextureID or similar
 }
 
-internal sealed class MountTable(ITextureProvider textureProvider)
+internal sealed class MountTable(ITextureProvider textureProvider, JobInventory jobInventory)
 {
     private const int COLUMNS = 5;
     private const int ROWS = 6;
@@ -27,6 +27,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
     private int mMountPage = 1;
 
     private readonly ITextureProvider mTextureProvider = textureProvider;
+    private readonly JobInventory mJobInventory = jobInventory;
 
     private void RenderNavigationBar(List<Mount> mounts)
     {
@@ -55,7 +56,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         }
     }
 
-    private void RenderCurrentPage(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
+    private void RenderCurrentPage(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         if (!ImGui.BeginTable("MountTable", 5))
             return;
@@ -73,7 +74,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 i = 0;
             }
 
-            RenderMount(mount, characterConfiguration, jobConfiguration, jobInventory);
+            RenderMount(mount, characterConfiguration, jobConfiguration);
         }
 
         ImGui.EndTable();
@@ -86,10 +87,10 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         ImGui.PopStyleColor();
     }
 
-    public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
+    public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         RenderNavigationBar(mounts);
-        RenderCurrentPage(mounts, characterConfiguration, jobConfiguration, jobInventory);
+        RenderCurrentPage(mounts, characterConfiguration, jobConfiguration);
     }
 
     private static int GetPageCount(int mountCount)
@@ -97,7 +98,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         return (mountCount / PAGE_SIZE) + (mountCount % PAGE_SIZE == 0 ? 0 : 1);
     }
 
-    private void RenderMount(Mount mount, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration, JobInventory jobInventory)
+    private void RenderMount(Mount mount, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         var selectedUnselectedIcon = mTextureProvider.GetFromGame($"ui/uld/readycheck_hr1.tex").GetWrapOrEmpty().Handle;
 
@@ -141,10 +142,10 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         ImGui.SetCursorPos(finalPos);
 
         // --- Job assignment Popup (ausgelagert) ---
-        RenderJobAssignmentPopup(mount, characterConfiguration, jobInventory, mountRightClicked);
+        RenderJobAssignmentPopup(mount, characterConfiguration, mountRightClicked);
     }
 
-    private static void RenderJobAssignmentPopup(Mount mount, CharacterConfiguration characterConfiguration, JobInventory jobInventory, bool openRequested)
+    private void RenderJobAssignmentPopup(Mount mount, CharacterConfiguration characterConfiguration, bool openRequested)
     {
         var popupId = $"##popup_{mount.ID}";
 
@@ -161,7 +162,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
 
         foreach (JobInventory.JobType jobType in System.Enum.GetValues(typeof(JobInventory.JobType)))
         {
-            var jobs = jobInventory.GetJobsByType(jobType);
+            var jobs = mJobInventory.GetJobsByType(jobType);
             if (jobs.Count == 0)
                 continue;
 

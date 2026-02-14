@@ -40,7 +40,7 @@ public class MainWindow : Window
         mTextureProvider = textureProvider;
         mMountInventory = mountInventory;
         mJobInventory = jobInventory;
-        mMountTable = new MountTable(mTextureProvider);
+        mMountTable = new MountTable(mTextureProvider, mJobInventory);
     }
 
     public override void PreDraw()
