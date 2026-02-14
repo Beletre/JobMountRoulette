@@ -160,14 +160,14 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                     first = false;
                     var perJobConfig = characterConfiguration.forJob(job.ID);
                     bool enabled = perJobConfig.IsMountEnabled(mount.ID);
-                    var color = enabled ? new Vector4(0.2f, 0.8f, 0.2f, 1f) : new Vector4(0.5f, 0.5f, 0.5f, 1f);
-                    ImGui.PushStyleColor(ImGuiCol.Button, color);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color * new Vector4(1.1f, 1.1f, 1.1f, 1f));
-                    ImGui.PushStyleColor(ImGuiCol.ButtonActive, color);
+                    ImGui.PushStyleColor(ImGuiCol.Button, Vector4.Zero);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero);
+                    var tint_col = enabled ? Vector4.One : new Vector4(0.4f, 0.4f, 0.4f, 1f);
                     var btnSize = new Vector2(32, 32);
-                    if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0))
+                    if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0, Vector4.Zero, tint_col))
                     {
-                        perJobConfig.ToggleMount(mount.ID);
+                        perJobConfig.ToggleMount(mount.ID); 
                     }
                     if (ImGui.IsItemHovered())
                     {
@@ -178,6 +178,12 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 ImGui.EndGroup();
                 ImGui.Spacing();
             }
+
+            ImGui.Separator();
+            ImGui.Text("Click on a job icon to toggle whether this mount ");
+            ImGui.Text("is used in that job's roulette.");
+            ImGui.Text("Highlighted jobs have this mount enabled.");
+
             ImGui.EndPopup();
         }
     }
