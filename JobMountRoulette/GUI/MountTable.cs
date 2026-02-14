@@ -180,67 +180,12 @@ internal sealed class MountTable(ITextureProvider textureProvider)
             }
 
             ImGui.Separator();
-            ImGui.Text("Click on a job icon to toggle whether this mount ");
-            ImGui.Text("is used in that job's roulette.");
-            ImGui.Text("Highlighted jobs have this mount enabled.");
+
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1f));
+            ImGui.Text("Click an icon to toggle. Highlighted = Enabled.");
+            ImGui.PopStyleColor();
 
             ImGui.EndPopup();
         }
-    }
-}
-
-internal static class JobDataProvider
-{
-    private static readonly Dictionary<uint, (string Name, string Abbreviation, uint IconId)> s_jobData = new()
-    {
-        { 1, ("Gladiator", "GLA", 62101) },
-        { 2, ("Pugilist", "PGL", 62102) },
-        { 3, ("Marauder", "MRD", 62103) },
-        { 4, ("Lancer", "LNC", 62104) },
-        { 5, ("Archer", "ARC", 62105) },
-        { 6, ("Conjurer", "CNJ", 62106) },
-        { 7, ("Thaumaturge", "THM", 62107) },
-        { 8, ("Carpenter", "CRP", 62108) },
-        { 9, ("Blacksmith", "BSM", 62109) },
-        { 10, ("Armorer", "ARM", 62110) },
-        { 11, ("Goldsmith", "GSM", 62111) },
-        { 12, ("Leatherworker", "LTW", 62112) },
-        { 13, ("Weaver", "WVR", 62113) },
-        { 14, ("Alchemist", "ALC", 62114) },
-        { 15, ("Culinarian", "CUL", 62115) },
-        { 16, ("Miner", "MIN", 62116) },
-        { 17, ("Botanist", "BTN", 62117) },
-        { 18, ("Fisher", "FSH", 62118) },
-        { 19, ("Paladin", "PLD", 62119) },
-        { 20, ("Monk", "MNK", 62120) },
-        { 21, ("Warrior", "WAR", 62121) },
-        { 22, ("Dragoon", "DRG", 62122) },
-        { 23, ("Bard", "BRD", 62123) },
-        { 24, ("White Mage", "WHM", 62124) },
-        { 25, ("Black Mage", "BLM", 62125) },
-        { 26, ("Arcanist", "ACN", 62126) },
-        { 27, ("Summoner", "SMN", 62127) },
-        { 28, ("Scholar", "SCH", 62128) },
-        { 29, ("Rogue", "ROG", 62129) },
-        { 30, ("Ninja", "NIN", 62130) },
-        { 31, ("Machinist", "MCH", 62131) },
-        { 32, ("Dark Knight", "DRK", 62132) },
-        { 33, ("Astrologian", "AST", 62133) },
-        { 34, ("Samurai", "SAM", 62134) },
-        { 35, ("Red Mage", "RDM", 62135) },
-        { 36, ("Blue Mage", "BLU", 62136) },
-        { 37, ("Gunbreaker", "GNB", 62137) },
-        { 38, ("Dancer", "DNC", 62138) },
-        { 39, ("Reaper", "RPR", 62139) },
-        { 40, ("Sage", "SGE", 62140) },
-        { 41, ("Viper", "VIP", 62141) },
-        { 42, ("Pictomancer", "PIC", 62142) }
-    };
-
-    public static (string Name, string Abbreviation, uint IconId)? GetJobInfo(uint jobId)
-    {
-        if (s_jobData.TryGetValue(jobId, out var data))
-            return data;
-        return null;
     }
 }
