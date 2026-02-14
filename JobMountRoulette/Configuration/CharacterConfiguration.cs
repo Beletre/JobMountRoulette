@@ -8,7 +8,7 @@ using JobIdentifier = uint;
 [Serializable]
 public sealed class CharacterConfiguration
 {
-    public Dictionary<JobIdentifier, JobConfiguration> JobConfigurations { get; set; } = new();
+    public Dictionary<JobIdentifier, JobConfiguration> JobConfigurations { get; set; } = [];
 
     public JobConfiguration forJob(JobIdentifier identifier)
     {

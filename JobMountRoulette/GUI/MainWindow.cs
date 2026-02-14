@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace JobMountRoulette.Windows;
+namespace JobMountRoulette.GUI;
 
 public class MainWindow : Window
 {
@@ -20,6 +20,7 @@ public class MainWindow : Window
     private readonly IPlayerState mPlayerState;
     private readonly ITextureProvider mTextureProvider;
     private readonly MountInventory mMountInventory;
+    private readonly JobInventory mJobInventory;
     private readonly MountTable mMountTable;
     private float mWidth;
     private bool mShowSelectedOnly = false;
@@ -29,7 +30,7 @@ public class MainWindow : Window
     private RowRef<ClassJob>? mJobClipboard;
     private JobConfiguration? mJobConfigurationClipboard;
 
-    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IPlayerState playerState, IObjectTable objectTable, ITextureProvider textureProvider, MountInventory mountInventory)
+    public MainWindow(PluginConfiguration configuration, IDalamudPluginInterface pluginInterface, IPlayerState playerState, IObjectTable objectTable, ITextureProvider textureProvider, MountInventory mountInventory, JobInventory jobInventory)
         : base("Job Mount Roulette##UwU", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         mConfiguration = configuration;
@@ -38,7 +39,8 @@ public class MainWindow : Window
         mObjectTable = objectTable;
         mTextureProvider = textureProvider;
         mMountInventory = mountInventory;
-        mMountTable = new MountTable(mTextureProvider);
+        mJobInventory = jobInventory;
+        mMountTable = new MountTable(mTextureProvider, mJobInventory);
     }
 
     public override void PreDraw()
@@ -52,25 +54,32 @@ public class MainWindow : Window
         var player = mObjectTable.LocalPlayer;
         if (player == null)
         {
-            ImGui.Text("You ain't got no job... :,(");
+            ImGui.Text("Player not available.");
+            ImGui.Text("Please log in and enter the game world to configure job-specific settings.");
             return;
         }
 
         var currentJob = player.ClassJob;
-        var jobIdentifier = currentJob.Value.RowId;
-        var jobName = currentJob.Value.NameEnglish;
+        var job = mJobInventory.Find(currentJob.Value.RowId);
+        if (job == null)
+        {
+            ImGui.Text($"This job (ID {currentJob.Value.RowId}) is not recognized by the plugin.");
+            ImGui.Text($"It may be unsupported or job data hasn't loaded yet.");
+            ImGui.Text($"Try switching to another job or restarting the plugin.");
+            return;
+        }
 
         var characterConfiguration = mConfiguration.forCharacter(mPlayerState.ContentId);
-        var jobConfiguration = characterConfiguration.forJob(jobIdentifier);
+        var jobConfiguration = characterConfiguration.forJob(job.ID);
 
-        ImGui.Text($"Current Job: {jobName}");
+        ImGui.Text($"Current Job: {job.Name}");
 
         ImGui.SameLine();
         if (ImGui.Button("Copy"))
         {
             mJobClipboard = currentJob;
 
-            JobConfiguration clone = new JobConfiguration
+            var clone = new JobConfiguration
             {
                 UseCustomRoulette = jobConfiguration.UseCustomRoulette,
                 CustomRouletteMounts = [.. jobConfiguration.CustomRouletteMounts]
@@ -85,13 +94,13 @@ public class MainWindow : Window
 
             if (ImGui.Button($"Paste from {mJobClipboard?.Value.NameEnglish}"))
             {
-                JobConfiguration clone = new JobConfiguration
+                var clone = new JobConfiguration
                 {
                     UseCustomRoulette = mJobConfigurationClipboard.UseCustomRoulette,
                     CustomRouletteMounts = [.. mJobConfigurationClipboard.CustomRouletteMounts]
                 };
 
-                characterConfiguration.overrideJob(jobIdentifier, clone);
+                characterConfiguration.overrideJob(job.ID, clone);
             }
         }
 
@@ -103,15 +112,15 @@ public class MainWindow : Window
         {
             ImGui.Separator();
             var mounts = RenderMountFiltering(jobConfiguration);
-            RenderBatchOperations(mounts, characterConfiguration, jobConfiguration);
+            RenderBatchOperations(mounts, jobConfiguration);
             ImGui.Separator();
-            mMountTable.Render(mounts, jobConfiguration);
+            mMountTable.Render(mounts, characterConfiguration, jobConfiguration);
         }
 
         mWidth = ImGui.GetWindowWidth();
     }
 
-    private void RenderBatchOperations(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
+    private static void RenderBatchOperations(List<Mount> mounts, JobConfiguration jobConfiguration)
     {
         if (ImGui.CollapsingHeader("Batch"))
         {
@@ -147,15 +156,15 @@ public class MainWindow : Window
             ImGui.InputTextWithHint(string.Empty, "Filter by name", ref mMountSearch, 64);
             if (!string.IsNullOrWhiteSpace(mMountSearch))
             {
-                mounts = mounts.Where(m => m.Name.ToString().IndexOf(mMountSearch, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                mounts = [.. mounts.Where(m => m.Name.ToString().Contains(mMountSearch, StringComparison.OrdinalIgnoreCase))];
             }
 
             mounts = mShowSelectedOnly
-                ? mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID)).ToList()
+                ? [.. mounts.Where(m => jobConfiguration.IsMountEnabled(m.ID))]
                 : mounts;
 
             mounts = mShowMultiseatOnly
-                ? mounts.Where(m => m.ExtraSeats > 0).ToList()
+                ? [.. mounts.Where(m => m.ExtraSeats > 0)]
                 : mounts;
         }
 

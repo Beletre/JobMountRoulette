@@ -33,11 +33,7 @@ public sealed class JobConfiguration
 
     public void ToggleMount(MountIdentifier mountId)
     {
-        if (CustomRouletteMounts.Contains(mountId))
-        {
-            CustomRouletteMounts.Remove(mountId);
-        }
-        else
+        if (!CustomRouletteMounts.Remove(mountId))
         {
             CustomRouletteMounts.Add(mountId);
         }

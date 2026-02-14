@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace JobMountRoulette.Windows;
+namespace JobMountRoulette.GUI;
 
-internal sealed class MountTable(ITextureProvider textureProvider)
+internal sealed class MountTable(ITextureProvider textureProvider, JobInventory jobInventory)
 {
     private const int COLUMNS = 5;
     private const int ROWS = 6;
@@ -18,6 +18,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
     private int mMountPage = 1;
 
     private readonly ITextureProvider mTextureProvider = textureProvider;
+    private readonly JobInventory mJobInventory = jobInventory;
 
     private void RenderNavigationBar(List<Mount> mounts)
     {
@@ -46,7 +47,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         }
     }
 
-    private void RenderCurrentPage(List<Mount> mounts, JobConfiguration jobConfiguration)
+    private void RenderCurrentPage(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         if (!ImGui.BeginTable("MountTable", 5))
             return;
@@ -64,16 +65,23 @@ internal sealed class MountTable(ITextureProvider textureProvider)
                 i = 0;
             }
 
-            RenderMount(mount, jobConfiguration);
+            RenderMount(mount, characterConfiguration, jobConfiguration);
         }
 
         ImGui.EndTable();
+
+        // Help text below the table explaining click behavior (dimmed)
+        ImGui.Separator();
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1f));
+        ImGui.TextWrapped("Left-click: toggle mount for the current job.");
+        ImGui.TextWrapped("Right-click: open popup to view/change which jobs have this mount enabled.");
+        ImGui.PopStyleColor();
     }
 
-    public void Render(List<Mount> mounts, JobConfiguration jobConfiguration)
+    public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         RenderNavigationBar(mounts);
-        RenderCurrentPage(mounts, jobConfiguration);
+        RenderCurrentPage(mounts, characterConfiguration, jobConfiguration);
     }
 
     private static int GetPageCount(int mountCount)
@@ -81,7 +89,7 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         return (mountCount / PAGE_SIZE) + (mountCount % PAGE_SIZE == 0 ? 0 : 1);
     }
 
-    private void RenderMount(Mount mount, JobConfiguration jobConfiguration)
+    private void RenderMount(Mount mount, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
         var selectedUnselectedIcon = mTextureProvider.GetFromGame($"ui/uld/readycheck_hr1.tex").GetWrapOrEmpty().Handle;
 
@@ -98,7 +106,9 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0);
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0);
 
-        if (ImGui.ImageButton(mountIcon, buttonSize, Vector2.Zero, Vector2.One, 0))
+        var mountClicked = ImGui.ImageButton(mountIcon, buttonSize, Vector2.Zero, Vector2.One, 0);
+        var mountRightClicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
+        if (mountClicked)
         {
             jobConfiguration.ToggleMount(mount.ID);
         }
@@ -121,5 +131,63 @@ internal sealed class MountTable(ITextureProvider textureProvider)
         ImGui.Image(selectedUnselectedIcon, overlaySize, offset, offset2);
 
         ImGui.SetCursorPos(finalPos);
+
+        RenderJobAssignmentPopup(mount, characterConfiguration, mountRightClicked);
+    }
+
+    private void RenderJobAssignmentPopup(Mount mount, CharacterConfiguration characterConfiguration, bool openRequested)
+    {
+        var popupId = $"##popup_{mount.ID}";
+
+        if (openRequested)
+        {
+            ImGui.OpenPopup(popupId);
+        }
+
+        if (!ImGui.BeginPopup(popupId))
+            return;
+
+        ImGui.Text($"Jobs for: {mount.Name}");
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        foreach (var role in System.Enum.GetValues<JobInventory.Role>())
+        {
+            var jobs = mJobInventory.FindByRole(role);
+            if (jobs.Count == 0)
+                continue;
+
+            ImGui.BeginGroup();
+            foreach (var job in jobs)
+            {
+                var perJobConfig = characterConfiguration.forJob(job.ID);
+                var enabled = perJobConfig.IsMountEnabled(mount.ID);
+                ImGui.PushStyleColor(ImGuiCol.Button, Vector4.Zero);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero);
+                var tintCol = enabled ? Vector4.One : new Vector4(0.4f, 0.4f, 0.4f, 1f);
+                var size = new Vector2(32, 32);
+                if (ImGui.ImageButton(job.GetIcon(), size, Vector2.Zero, Vector2.One, 0, Vector4.Zero, tintCol))
+                {
+                    perJobConfig.ToggleMount(mount.ID);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip(job.Name);
+                }
+                ImGui.PopStyleColor(3);
+                ImGui.SameLine();
+            }
+            ImGui.EndGroup();
+            ImGui.Spacing();
+        }
+
+        ImGui.Separator();
+
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0.75f, 1f));
+        ImGui.Text("Click an icon to toggle. Highlighted = Enabled.");
+        ImGui.PopStyleColor();
+
+        ImGui.EndPopup();
     }
 }

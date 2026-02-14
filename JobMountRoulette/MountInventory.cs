@@ -12,15 +12,15 @@ public sealed class MountInventory
     public MountInventory(IDataManager dataManager, ITextureProvider textureProvider)
     {
         mTextureProvider = textureProvider;
-        mMounts = (from mount in dataManager.GameData.GetExcelSheet<Lumina.Excel.Sheets.Mount>()
+        mMounts = [.. (from mount in dataManager.GameData.GetExcelSheet<Lumina.Excel.Sheets.Mount>()
                    where mount.UIPriority > 0 && mount.Icon != 0
                    orderby mount.UIPriority, mount.RowId
-                   select new Mount(mount, mTextureProvider)).ToList();
+                   select new Mount(mount, mTextureProvider))];
     }
 
     public List<Mount> GetUnlockedMounts()
     {
-        return mMounts.Where(x => x.isUnlocked()).ToList();
+        return [.. mMounts.Where(x => x.isUnlocked())];
     }
 
     public List<Mount> GetAvailableMounts()
