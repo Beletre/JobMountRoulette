@@ -7,13 +7,6 @@ using System.Numerics;
 
 namespace JobMountRoulette.Windows;
 
-internal sealed class JobInfo
-{
-    public uint Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    // Placeholder for icon, in real use would be ImTextureID or similar
-}
-
 internal sealed class MountTable(ITextureProvider textureProvider, JobInventory jobInventory)
 {
     private const int COLUMNS = 5;
