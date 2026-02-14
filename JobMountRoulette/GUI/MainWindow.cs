@@ -54,12 +54,17 @@ public class MainWindow : Window
         var player = mObjectTable.LocalPlayer;
         if (player == null)
         {
-            ImGui.Text("You ain't got no job... :,(");
+            ImGui.TextWrapped("Player not available. Please log in and enter the game world to configure job-specific settings.");
             return;
         }
 
         var currentJob = player.ClassJob;
-        var job = mJobInventory.GetJob(currentJob.Value.RowId);
+        var job = mJobInventory.Find(currentJob.Value.RowId);
+        if (job == null)
+        {
+            ImGui.TextWrapped($"This job (ID {currentJob.Value.RowId}) is not recognized by the plugin. It may be unsupported or job data hasn't loaded yet. Try switching to another job or restarting the plugin.");
+            return;
+        }
 
         var characterConfiguration = mConfiguration.forCharacter(mPlayerState.ContentId);
         var jobConfiguration = characterConfiguration.forJob(job.ID);

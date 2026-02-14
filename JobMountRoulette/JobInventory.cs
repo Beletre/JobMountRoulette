@@ -6,10 +6,9 @@ namespace JobMountRoulette;
 
 public sealed class JobInventory
 {
-    private readonly ITextureProvider mTextureProvider;
     private readonly List<Job> mJobs;
 
-    public Dictionary<JobType, List<uint>> CustomJobRoleAssignments { get; } = new()
+    public Dictionary<JobType, List<uint>> JobIDsForRole { get; } = new()
     {
         { JobType.Tank, new List<uint>{ 19, 21, 32, 37 } },
         { JobType.Healer, new List<uint>{ 24, 28, 33, 40 } },
@@ -22,12 +21,11 @@ public sealed class JobInventory
 
     public JobInventory(IDataManager dataManager, ITextureProvider textureProvider)
     {
-        mTextureProvider = textureProvider;
         mJobs = (from job in dataManager.GameData.GetExcelSheet<Lumina.Excel.Sheets.ClassJob>()
-                 select new Job(job, mTextureProvider)).ToList();
+                 select new Job(job, textureProvider)).ToList();
     }
 
-    public Job? GetJob(uint id)
+    public Job? Find(uint id)
     {
         return mJobs.FirstOrDefault(job => job.ID == id);
     }
@@ -45,7 +43,7 @@ public sealed class JobInventory
 
     public List<Job> GetJobsByType(JobType jobType)
     {
-        if (!CustomJobRoleAssignments.TryGetValue(jobType, out var jobIds))
+        if (!JobIDsForRole.TryGetValue(jobType, out var jobIds))
             return new List<Job>();
 
         // Sort jobs according to the order in jobIds
