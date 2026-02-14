@@ -165,7 +165,7 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
                 ImGui.PushStyleColor(ImGuiCol.Button, Vector4.Zero);
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero);
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero);
-                var tintCol = enabled ? Vector4.One : new Vector4(0.5f, 0.5f, 0.5f, 1f);
+                var tintCol = enabled ? Vector4.One : new Vector4(0.4f, 0.4f, 0.4f, 1f);
                 var size = new Vector2(32, 32);
                 if (ImGui.ImageButton(job.GetIcon(), size, Vector2.Zero, Vector2.One, 0, Vector4.Zero, tintCol))
                 {
