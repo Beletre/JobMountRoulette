@@ -132,7 +132,6 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
 
         ImGui.SetCursorPos(finalPos);
 
-        // --- Job assignment Popup (ausgelagert) ---
         RenderJobAssignmentPopup(mount, characterConfiguration, mountRightClicked);
     }
 
@@ -150,28 +149,25 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
 
         ImGui.Text($"Jobs for: {mount.Name}");
         ImGui.Separator();
+        ImGui.Spacing();
 
-        foreach (var jobType in System.Enum.GetValues<JobInventory.Role>())
+        foreach (var role in System.Enum.GetValues<JobInventory.Role>())
         {
-            var jobs = mJobInventory.FindByRole(jobType);
+            var jobs = mJobInventory.FindByRole(role);
             if (jobs.Count == 0)
                 continue;
 
             ImGui.BeginGroup();
-            var first = true;
             foreach (var job in jobs)
             {
-                if (!first)
-                    ImGui.SameLine();
-                first = false;
                 var perJobConfig = characterConfiguration.forJob(job.ID);
                 var enabled = perJobConfig.IsMountEnabled(mount.ID);
                 ImGui.PushStyleColor(ImGuiCol.Button, Vector4.Zero);
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero);
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero);
-                var tint_col = enabled ? Vector4.One : new Vector4(0.4f, 0.4f, 0.4f, 1f);
-                var btnSize = new Vector2(32, 32);
-                if (ImGui.ImageButton(job.GetIcon(), btnSize, Vector2.Zero, Vector2.One, 0, Vector4.Zero, tint_col))
+                var tintCol = enabled ? Vector4.One : new Vector4(0.5f, 0.5f, 0.5f, 1f);
+                var size = new Vector2(32, 32);
+                if (ImGui.ImageButton(job.GetIcon(), size, Vector2.Zero, Vector2.One, 0, Vector4.Zero, tintCol))
                 {
                     perJobConfig.ToggleMount(mount.ID);
                 }
@@ -180,6 +176,7 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
                     ImGui.SetTooltip(job.Name);
                 }
                 ImGui.PopStyleColor(3);
+                ImGui.SameLine();
             }
             ImGui.EndGroup();
             ImGui.Spacing();

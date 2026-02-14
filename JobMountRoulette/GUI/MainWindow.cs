@@ -54,7 +54,8 @@ public class MainWindow : Window
         var player = mObjectTable.LocalPlayer;
         if (player == null)
         {
-            ImGui.TextWrapped("Player not available. Please log in and enter the game world to configure job-specific settings.");
+            ImGui.Text("Player not available.");
+            ImGui.Text("Please log in and enter the game world to configure job-specific settings.");
             return;
         }
 
@@ -62,7 +63,9 @@ public class MainWindow : Window
         var job = mJobInventory.Find(currentJob.Value.RowId);
         if (job == null)
         {
-            ImGui.TextWrapped($"This job (ID {currentJob.Value.RowId}) is not recognized by the plugin. It may be unsupported or job data hasn't loaded yet. Try switching to another job or restarting the plugin.");
+            ImGui.Text($"This job (ID {currentJob.Value.RowId}) is not recognized by the plugin.");
+            ImGui.Text($"It may be unsupported or job data hasn't loaded yet.");
+            ImGui.Text($"Try switching to another job or restarting the plugin.");
             return;
         }
 
