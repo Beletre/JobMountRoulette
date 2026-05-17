@@ -80,8 +80,36 @@ internal sealed class MountTable(ITextureProvider textureProvider, JobInventory 
 
     public void Render(List<Mount> mounts, CharacterConfiguration characterConfiguration, JobConfiguration jobConfiguration)
     {
+        // Group nav + table + help so IsItemHovered covers the whole rendered content
+        ImGui.BeginGroup();
+
         RenderNavigationBar(mounts);
         RenderCurrentPage(mounts, characterConfiguration, jobConfiguration);
+
+        ImGui.EndGroup();
+
+        // Handle mouse wheel to change pages when hovering the group area
+        HandleMouseWheel(mounts.Count);
+    }
+
+    private void HandleMouseWheel(int mountCount)
+    {
+        var pageCount = GetPageCount(mountCount);
+        if (pageCount <= 1)
+            return;
+
+        var io = ImGui.GetIO();
+        if (!ImGui.IsItemHovered() || io.MouseWheel == 0f)
+            return;
+
+        if (io.MouseWheel > 0f)
+        {
+            mMountPage = System.Math.Min(pageCount, mMountPage + 1);
+        }
+        else
+        {
+            mMountPage = System.Math.Max(1, mMountPage - 1);
+        }
     }
 
     private static int GetPageCount(int mountCount)
